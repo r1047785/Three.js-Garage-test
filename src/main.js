@@ -35,7 +35,6 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// grond
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(20, 20),
   new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 1 }),
@@ -43,7 +42,6 @@ const floor = new THREE.Mesh(
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
 
-// muren (vooraan open, zodat je er later dingen in kan zetten)
 const width = 6;
 const depth = 6;
 const wallHeight = 3;
@@ -60,7 +58,6 @@ const backWall = new THREE.Mesh(
 backWall.position.set(0, wallHeight / 2, -depth / 2);
 scene.add(backWall);
 
-// fotokader aan de achtermuur met de foto erop (foto is 1672x941, dus zelfde verhouding)
 const photoTexture = new THREE.TextureLoader().load(yenteOpDeMotorUrl);
 const photoFrame = new THREE.Mesh(
   new THREE.PlaneGeometry(2.6, 2.6 * (941 / 1672)),
@@ -83,7 +80,6 @@ const rightWall = new THREE.Mesh(
 rightWall.position.set(width / 2, wallHeight / 2, 0);
 scene.add(rightWall);
 
-// voormuur met 2 poortopeningen (gewoon open gaten, geen deuren)
 const pillarWidth = 0.3;
 const doorHeight = 2.2;
 const doorWidth = (width - pillarWidth * 3) / 2;
@@ -128,7 +124,6 @@ frontTopBand.position.set(
 );
 scene.add(frontTopBand);
 
-// dak (zadeldak, nok loopt van voor naar achter, dak helt af naar links en rechts)
 const roofOverhang = 0.4;
 const roofRise = 1.5;
 const roofThickness = 0.15;
@@ -166,19 +161,17 @@ function placeOnFloor(object, x, z) {
   object.position.set(x - center.x, size.y / 2 - center.y, z - center.z);
 }
 
-// motor (kawasaki) gewoon normaal (horizontaal) staand, achterkant tegen de linkermuur
 gltfLoader.load(kawasakiUrl, (gltf) => {
   const bike = gltf.scene;
-  bike.rotation.y = -Math.PI / 2; // lengte-as haaks op de muur leggen, achterkant naar links
+  bike.rotation.y = -Math.PI / 2;
 
   const bikeBox = new THREE.Box3().setFromObject(bike);
   const bikeSize = bikeBox.getSize(new THREE.Vector3());
   const wallFaceX = -width / 2 + wallThickness / 2;
-  const bikeX = wallFaceX + bikeSize.x / 2 + 0.02; // achterkant net tegen de muur
+  const bikeX = wallFaceX + bikeSize.x / 2 + 0.02;
   placeOnFloor(bike, bikeX, 0);
   scene.add(bike);
 
-  // zwarte mat onder de motor
   const mat = new THREE.Mesh(
     new THREE.PlaneGeometry(bikeSize.x + 0.4, bikeSize.z + 0.4),
     new THREE.MeshBasicMaterial({ color: 0x000000 }),
@@ -187,7 +180,6 @@ gltfLoader.load(kawasakiUrl, (gltf) => {
   mat.position.set(bikeX, 0.01, 0);
   scene.add(mat);
 
-  // helm ernaast op de grond, kleiner en alsof die er zo neergelegd is
   gltfLoader.load(helmetUrl, (helmetGltf) => {
     const helmet = helmetGltf.scene;
 
@@ -196,14 +188,13 @@ gltfLoader.load(kawasakiUrl, (gltf) => {
     const targetHeight = 0.3;
     helmet.scale.setScalar(targetHeight / naturalSize.y);
 
-    helmet.rotation.x = Math.PI / 2; // omgedraaid, op zijn kant liggend
-    helmet.rotation.y = 0.6; // lichte natuurlijke draai, geen rechte hoek
+    helmet.rotation.x = Math.PI / 2;
+    helmet.rotation.y = 0.6;
 
     placeOnFloor(helmet, bikeX, bikeSize.z / 2 + 0.4);
     scene.add(helmet);
   });
 
-  // warme lamp boven de motor en de helm, voor de avond-sfeer
   const spotlight = new THREE.PointLight(0xffc98a, 90, 12, 2);
   spotlight.position.set(bikeX, wallHeight + roofRise - 0.3, bikeSize.z / 4);
   scene.add(spotlight);
